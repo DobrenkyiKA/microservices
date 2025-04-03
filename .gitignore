@@ -1,0 +1,25 @@
+# ===== IDE-Specific Configuration Files =====
+# IntelliJ IDEA
+/.idea/
+/*.iml
+*.ipr
+*.iws
+.mvn/
+
+
+/out/
+
+
+# ===== Build Files =====
+resource-service/target/
+song-service/target/
+
+
+
+*mvnw.cmd
+*mvnw
+*.iml
+*.gitattributes
+*HELP.md
+*maven-wrapper.properties
+

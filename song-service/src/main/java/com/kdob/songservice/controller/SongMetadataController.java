@@ -1,0 +1,37 @@
+package com.kdob.songservice.controller;
+
+import com.kdob.songservice.dto.CreateSongMetadataRequestDto;
+import com.kdob.songservice.dto.CreateSongMetadataResponseDto;
+import com.kdob.songservice.dto.DeletedSongMetadataResponseDto;
+import com.kdob.songservice.dto.GetSongMetadataResponseDto;
+import com.kdob.songservice.facade.SongMetadataFacade;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/songs")
+@AllArgsConstructor
+@Validated
+public class SongMetadataController {
+
+    private final SongMetadataFacade songMetadataFacade;
+
+    @PostMapping
+    public ResponseEntity<CreateSongMetadataResponseDto> createSongMetadata(@Valid @RequestBody final CreateSongMetadataRequestDto createSongMetadataRequestDto) {
+        return ResponseEntity.ok(songMetadataFacade.createSongMetadata(createSongMetadataRequestDto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GetSongMetadataResponseDto> getSongMetadataById(@PathVariable final Integer id) {
+        return ResponseEntity.ok(songMetadataFacade.getSongMetadata(id));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<DeletedSongMetadataResponseDto> deleteSongsMetadata(@RequestParam @Size(max = 200, message = "maximum allowed is 200") final String id) {
+        return ResponseEntity.ok(songMetadataFacade.deleteSongMetadata(id));
+    }
+}
