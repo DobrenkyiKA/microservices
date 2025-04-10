@@ -1,4 +1,4 @@
-package com.kdob.resourceservice.error;
+package com.kdob.resourceservice.dto.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

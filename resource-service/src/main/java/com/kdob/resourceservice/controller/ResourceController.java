@@ -1,8 +1,8 @@
 package com.kdob.resourceservice.controller;
 
-import com.kdob.resourceservice.dto.CreateResourceRequestDto;
-import com.kdob.resourceservice.dto.CreateResourceResponseDto;
-import com.kdob.resourceservice.dto.DeletedResourcesResponseDto;
+import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
+import com.kdob.resourceservice.dto.response.CreateResourceResponseDto;
+import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
 import com.kdob.resourceservice.facade.ResourceFacade;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;

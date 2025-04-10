@@ -1,4 +1,4 @@
-package com.kdob.songservice.dto;
+package com.kdob.songservice.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

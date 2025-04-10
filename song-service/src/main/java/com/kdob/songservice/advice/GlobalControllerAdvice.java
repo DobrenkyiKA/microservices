@@ -1,7 +1,7 @@
 package com.kdob.songservice.advice;
 
-import com.kdob.songservice.error.ErrorMessageDto;
-import com.kdob.songservice.error.ValidationErrorMessageDto;
+import com.kdob.songservice.dto.error.ErrorMessageDto;
+import com.kdob.songservice.dto.error.ValidationErrorMessageDto;
 import com.kdob.songservice.exception.AlreadyExistSongMetadataException;
 import com.kdob.songservice.exception.NoSuchSongMetadataException;
 import jakarta.validation.ConstraintViolation;

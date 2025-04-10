@@ -1,7 +1,7 @@
 package com.kdob.resourceservice.service;
 
 import com.kdob.resourceservice.dao.ResourceDao;
-import com.kdob.resourceservice.dto.DeletedResourcesResponseDto;
+import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
 import com.kdob.resourceservice.exception.NoSuchResourceException;
 import com.kdob.resourceservice.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;

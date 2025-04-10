@@ -1,9 +1,9 @@
 package com.kdob.resourceservice.facade;
 
 import com.kdob.resourceservice.dao.ResourceDao;
-import com.kdob.resourceservice.dto.CreateResourceRequestDto;
-import com.kdob.resourceservice.dto.CreateResourceResponseDto;
-import com.kdob.resourceservice.dto.DeletedResourcesResponseDto;
+import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
+import com.kdob.resourceservice.dto.response.CreateResourceResponseDto;
+import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
 import com.kdob.resourceservice.service.SongMetadataIntegrationService;
 import com.kdob.resourceservice.mapper.ResourceMapper;
 import com.kdob.resourceservice.service.ResourceService;

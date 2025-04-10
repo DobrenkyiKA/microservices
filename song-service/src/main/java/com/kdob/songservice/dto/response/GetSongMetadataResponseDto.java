@@ -1,9 +1,10 @@
-package com.kdob.resourceservice.dto;
+package com.kdob.songservice.dto.response;
 
 import lombok.Data;
 
 @Data
-public class SongMetadataDto {
+public class GetSongMetadataResponseDto {
+
     private long id;
     private String name;
     private String artist;

@@ -1,4 +1,4 @@
-package com.kdob.resourceservice.dto;
+package com.kdob.resourceservice.dto.request;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.kdob.songservice.error;
+package com.kdob.songservice.dto.error;
 
 import java.util.Map;
 

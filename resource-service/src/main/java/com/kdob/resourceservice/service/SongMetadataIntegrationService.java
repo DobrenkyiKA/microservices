@@ -1,7 +1,7 @@
 package com.kdob.resourceservice.service;
 
 import com.kdob.resourceservice.dao.ResourceDao;
-import com.kdob.resourceservice.dto.SongMetadataDto;
+import com.kdob.resourceservice.dto.request.SongMetadataRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -28,7 +28,7 @@ public class SongMetadataIntegrationService {
 
             new Mp3Parser().parse(inputStream, new BodyContentHandler(), metadata, new ParseContext());
 
-            final SongMetadataDto metadataDto = new SongMetadataDto();
+            final SongMetadataRequestDto metadataDto = new SongMetadataRequestDto();
             metadataDto.setId(resource.getId());
             metadataDto.setName(metadata.get("dc:title"));
             metadataDto.setArtist(metadata.get("xmpDM:artist"));

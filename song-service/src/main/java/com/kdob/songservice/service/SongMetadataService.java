@@ -1,7 +1,7 @@
 package com.kdob.songservice.service;
 
 import com.kdob.songservice.dao.SongMetadataDao;
-import com.kdob.songservice.dto.DeletedSongMetadataResponseDto;
+import com.kdob.songservice.dto.response.DeletedSongMetadataResponseDto;
 import com.kdob.songservice.exception.AlreadyExistSongMetadataException;
 import com.kdob.songservice.exception.NoSuchSongMetadataException;
 import com.kdob.songservice.repository.SongMetadataRepository;

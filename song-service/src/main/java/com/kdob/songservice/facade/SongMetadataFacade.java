@@ -1,10 +1,10 @@
 package com.kdob.songservice.facade;
 
 import com.kdob.songservice.dao.SongMetadataDao;
-import com.kdob.songservice.dto.CreateSongMetadataRequestDto;
-import com.kdob.songservice.dto.CreateSongMetadataResponseDto;
-import com.kdob.songservice.dto.DeletedSongMetadataResponseDto;
-import com.kdob.songservice.dto.GetSongMetadataResponseDto;
+import com.kdob.songservice.dto.request.CreateSongMetadataRequestDto;
+import com.kdob.songservice.dto.response.CreateSongMetadataResponseDto;
+import com.kdob.songservice.dto.response.DeletedSongMetadataResponseDto;
+import com.kdob.songservice.dto.response.GetSongMetadataResponseDto;
 import com.kdob.songservice.mapper.SongMetadataMapper;
 import com.kdob.songservice.service.SongMetadataService;
 import lombok.AllArgsConstructor;

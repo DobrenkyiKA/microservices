@@ -1,4 +1,4 @@
-package com.kdob.songservice.dto;
+package com.kdob.songservice.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

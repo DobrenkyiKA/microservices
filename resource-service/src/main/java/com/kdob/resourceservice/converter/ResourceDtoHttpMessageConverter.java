@@ -1,6 +1,6 @@
 package com.kdob.resourceservice.converter;
 
-import com.kdob.resourceservice.dto.CreateResourceRequestDto;
+import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
 import org.springframework.http.*;
 import org.springframework.http.converter.*;
 import org.springframework.lang.NonNull;

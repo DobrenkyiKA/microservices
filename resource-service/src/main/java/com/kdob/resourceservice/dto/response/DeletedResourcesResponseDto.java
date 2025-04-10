@@ -1,4 +1,4 @@
-package com.kdob.resourceservice.dto;
+package com.kdob.resourceservice.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

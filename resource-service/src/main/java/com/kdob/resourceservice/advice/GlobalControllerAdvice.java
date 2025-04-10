@@ -1,6 +1,6 @@
 package com.kdob.resourceservice.advice;
 
-import com.kdob.resourceservice.error.ErrorMessageDto;
+import com.kdob.resourceservice.dto.error.ErrorMessageDto;
 import com.kdob.resourceservice.exception.NoSuchResourceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

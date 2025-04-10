@@ -1,9 +1,9 @@
 package com.kdob.songservice.controller;
 
-import com.kdob.songservice.dto.CreateSongMetadataRequestDto;
-import com.kdob.songservice.dto.CreateSongMetadataResponseDto;
-import com.kdob.songservice.dto.DeletedSongMetadataResponseDto;
-import com.kdob.songservice.dto.GetSongMetadataResponseDto;
+import com.kdob.songservice.dto.request.CreateSongMetadataRequestDto;
+import com.kdob.songservice.dto.response.CreateSongMetadataResponseDto;
+import com.kdob.songservice.dto.response.DeletedSongMetadataResponseDto;
+import com.kdob.songservice.dto.response.GetSongMetadataResponseDto;
 import com.kdob.songservice.facade.SongMetadataFacade;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
