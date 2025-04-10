@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ResourceMapper {
 
-//    @Mapping(target = "resource", source = "createResourceRequestDto.resource")
     ResourceDao dtoToDao(CreateResourceRequestDto createResourceRequestDto);
+
     CreateResourceResponseDto daoToDto(ResourceDao resourceDao);
 }

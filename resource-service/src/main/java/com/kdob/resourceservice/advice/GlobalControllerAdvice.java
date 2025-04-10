@@ -2,13 +2,13 @@ package com.kdob.resourceservice.advice;
 
 import com.kdob.resourceservice.dto.error.ErrorMessageDto;
 import com.kdob.resourceservice.exception.NoSuchResourceException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
@@ -34,16 +34,15 @@ public class GlobalControllerAdvice {
         return new ErrorMessageDto(e.getMessage(), String.valueOf(HttpStatus.NOT_FOUND.value()));
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessageDto handleBadRequest(final MethodArgumentTypeMismatchException e) {
+        return new ErrorMessageDto(e.getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessageDto handleBadRequest(final ConstraintViolationException e) {
-        ConstraintViolation<?> constraintViolation = e.getConstraintViolations().stream().findFirst().get();
-        String message;
-        if (constraintViolation.getPropertyPath().toString().equals("deleteResource.id"))  {
-            message = "CSV string is too long: received " + constraintViolation.getInvalidValue().toString().length() + " characters," + constraintViolation.getMessage();
-        } else {
-            message = "Invalid value " + constraintViolation.getInvalidValue() + " for " + constraintViolation.getPropertyPath() + ". " + constraintViolation.getMessageTemplate();
-        }
-        return new ErrorMessageDto(message, String.valueOf(HttpStatus.BAD_REQUEST.value()));
+        return new ErrorMessageDto(e.getConstraintViolations().stream().findAny().orElseThrow().getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
     }
 }

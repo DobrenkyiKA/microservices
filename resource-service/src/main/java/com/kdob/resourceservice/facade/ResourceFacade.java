@@ -26,7 +26,7 @@ public class ResourceFacade {
         return resourceMapper.daoToDto(createdResource);
     }
     public byte[] getResource(final String id) {
-        return resourceService.getResource(id);
+        return resourceService.getResource(Long.parseLong(id));
     }
     public DeletedResourcesResponseDto deleteResource(final String id) {
         return resourceService.deleteResource(id);

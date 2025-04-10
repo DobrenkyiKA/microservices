@@ -1,5 +1,7 @@
 package com.kdob.songservice.controller;
 
+import com.kdob.songservice.constraint.PositiveIntegerId;
+import com.kdob.songservice.constraint.ValidCsvId;
 import com.kdob.songservice.dto.request.CreateSongMetadataRequestDto;
 import com.kdob.songservice.dto.response.CreateSongMetadataResponseDto;
 import com.kdob.songservice.dto.response.DeletedSongMetadataResponseDto;
@@ -26,12 +28,12 @@ public class SongMetadataController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetSongMetadataResponseDto> getSongMetadataById(@PathVariable final Integer id) {
+    public ResponseEntity<GetSongMetadataResponseDto> getSongMetadataById(@PathVariable @PositiveIntegerId final String id) {
         return ResponseEntity.ok(songMetadataFacade.getSongMetadata(id));
     }
 
     @DeleteMapping
-    public ResponseEntity<DeletedSongMetadataResponseDto> deleteSongsMetadata(@RequestParam @Size(max = 200, message = "maximum allowed is 200") final String id) {
+    public ResponseEntity<DeletedSongMetadataResponseDto> deleteSongsMetadata(@RequestParam @ValidCsvId final String id) {
         return ResponseEntity.ok(songMetadataFacade.deleteSongMetadata(id));
     }
 }

@@ -72,13 +72,6 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessageDto handleBadRequest(final ConstraintViolationException e) {
-        ConstraintViolation<?> constraintViolation = e.getConstraintViolations().stream().findFirst().get();
-        String message;
-        if (constraintViolation.getPropertyPath().toString().equals("deleteSongsMetadata.id"))  {
-            message = "CSV string is too long: received " + constraintViolation.getInvalidValue().toString().length() + " characters," + constraintViolation.getMessage();
-        } else {
-            message = "Invalid value " + constraintViolation.getInvalidValue() + " for " + constraintViolation.getPropertyPath() + ". " + constraintViolation.getMessageTemplate();
-        }
-        return new ErrorMessageDto(message, String.valueOf(HttpStatus.BAD_REQUEST.value()));
+        return new ErrorMessageDto(e.getConstraintViolations().stream().findAny().orElseThrow().getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
     }
 }

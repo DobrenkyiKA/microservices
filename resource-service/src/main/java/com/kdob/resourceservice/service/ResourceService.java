@@ -22,8 +22,8 @@ public class ResourceService {
         return resourceRepository.save(resource);
     }
 
-    public byte[] getResource(final String id) {
-        return resourceRepository.findById(Long.parseLong(id)).orElseThrow(() -> new NoSuchResourceException("Resource with ID=" + id + " not found")).getResource();
+    public byte[] getResource(final long id) {
+        return resourceRepository.findById(id).orElseThrow(() -> new NoSuchResourceException("Resource with ID=" + id + " not found")).getResource();
     }
 
     public DeletedResourcesResponseDto deleteResource(final String id) {

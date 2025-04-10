@@ -25,8 +25,8 @@ public class SongMetadataService {
         return songMetadataRepository.save(request);
     }
 
-    public SongMetadataDao getSongMetadata(final Integer id) {
-        return songMetadataRepository.findById(id.longValue()).orElseThrow(() -> new NoSuchSongMetadataException("No such song metadata with id: " + id));
+    public SongMetadataDao getSongMetadata(final long id) {
+        return songMetadataRepository.findById(id).orElseThrow(() -> new NoSuchSongMetadataException("Song metadata for ID=" + id + " not found"));
     }
 
     public DeletedSongMetadataResponseDto deleteSongMetadata(final String id) {

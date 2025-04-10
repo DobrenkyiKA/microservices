@@ -23,8 +23,9 @@ public class SongMetadataFacade {
         return songMetadataMapper.dtoToDao(createdSongMetadata);
     }
 
-    public GetSongMetadataResponseDto getSongMetadata(final Integer id) {
-        return songMetadataMapper.daoToGetSongMetadataDto(songMetadataService.getSongMetadata(id));
+    public GetSongMetadataResponseDto getSongMetadata(final String id) {
+        final SongMetadataDao songMetadata = songMetadataService.getSongMetadata(Long.parseLong(id));
+        return songMetadataMapper.daoToGetSongMetadataDto(songMetadata);
     }
 
     public DeletedSongMetadataResponseDto deleteSongMetadata(final String id) {

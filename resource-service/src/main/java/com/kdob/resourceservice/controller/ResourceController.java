@@ -1,10 +1,11 @@
 package com.kdob.resourceservice.controller;
 
+import com.kdob.resourceservice.constraint.PositiveIntegerId;
+import com.kdob.resourceservice.constraint.ValidCsvId;
 import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
 import com.kdob.resourceservice.dto.response.CreateResourceResponseDto;
 import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
 import com.kdob.resourceservice.facade.ResourceFacade;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,12 @@ public class ResourceController {
     }
 
     @GetMapping(produces = "audio/mpeg", path = "/{id}")
-    public ResponseEntity<byte[]> getResource(@Positive(message = "Must be a positive integer") @PathVariable final String id) {
+    public ResponseEntity<byte[]> getResource(@PathVariable @PositiveIntegerId final String id) {
         return ResponseEntity.ok(resourceFacade.getResource(id));
     }
 
     @DeleteMapping()
-    public ResponseEntity<DeletedResourcesResponseDto> deleteResource(@RequestParam @Size(max = 200, message = "maximum allowed is 200") final String id) {
+    public ResponseEntity<DeletedResourcesResponseDto> deleteResource(@RequestParam @ValidCsvId final String id) {
         return ResponseEntity.ok(resourceFacade.deleteResource(id));
     }
 }
