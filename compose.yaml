@@ -1,18 +1,54 @@
 services:
-  resource-db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: resource-db
-      POSTGRES_USER: postgres  # Default, can be omitted if unchanged
-      POSTGRES_PASSWORD: postgres
+  resource-service:
+    container_name: resource-service
+    build:
+      context: ./resource-service
     ports:
-      - "5432:5432"  # Maps container port 5432 to host port 5432
+      - "8081:8081"
+    depends_on:
+      - resource-db
+    environment:
+      SPRING_DATASOURCE_URL: ${RESOURCE_DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${RESOURCE_DB_POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${RESOURCE_DB_POSTGRES_PASSWORD}
+      SONG_SERVICE_URL: ${SONG_SERVICE_URL}
+
+  resource-db:
+    container_name: resource-db
+    image: postgres:17-alpine3.21
+    restart: always
+    environment:
+      POSTGRES_DB: ${RESOURCE_DB_DATABASE}
+      POSTGRES_USER: ${RESOURCE_DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${RESOURCE_DB_POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
+
+
+  song-service:
+    container_name: song-service
+    build:
+      context: ./song-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - song-db
+    environment:
+      SPRING_DATASOURCE_URL: ${SONG_DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${SONG_DB_POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${SONG_DB_POSTGRES_PASSWORD}
 
   song-db:
-    image: postgres:latest
+    container_name: song-db
+    image: postgres:17-alpine3.21
+    restart: always
     environment:
-      POSTGRES_DB: song-db
-      POSTGRES_USER: postgres  # Default, can be omitted if unchanged
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${SONG_DB_DATABASE}
+      POSTGRES_USER: ${SONG_DB_POSTGRES_USER}  # Default, can be omitted if unchanged
+      POSTGRES_PASSWORD: ${SONG_DB_POSTGRES_PASSWORD}
     ports:
       - "5433:5432"  # Maps container port 5432 to host port 5433 (to avoid conflict)
+    volumes:
+      - ./init-scripts/song-db:/docker-entrypoint-initdb.d

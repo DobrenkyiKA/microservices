@@ -7,6 +7,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +20,9 @@ import java.io.InputStream;
 public class SongMetadataIntegrationService {
 
     private final RestTemplate restTemplate;
-    private static final String SONG_SERVICE_URL = "http://localhost:8082/songs";
+
+    @Value("${song.service.url}")
+    private String SONG_SERVICE_URL;
 
     public void createSongMetadata(final ResourceDao resource) {
         try (InputStream inputStream = new ByteArrayInputStream(resource.getResource())) {
@@ -38,7 +41,6 @@ public class SongMetadataIntegrationService {
 
             ResponseEntity<String> response = restTemplate.postForEntity(SONG_SERVICE_URL, metadataDto, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                // Handle failure response appropriately
                 throw new RuntimeException("Failed to send metadata: " + response.getStatusCode());
             }
 
