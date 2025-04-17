@@ -2,6 +2,7 @@ package com.kdob.resourceservice.service;
 
 import com.kdob.resourceservice.dao.ResourceDao;
 import com.kdob.resourceservice.dto.request.SongMetadataRequestDto;
+import com.netflix.discovery.EurekaClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -20,11 +21,14 @@ import java.io.InputStream;
 public class SongMetadataIntegrationService {
 
     private final RestTemplate restTemplate;
+    private final EurekaClient discoveryClient;
 
-    @Value("${song.service.url}")
-    private String SONG_SERVICE_URL;
+    @Value("${song.service.application.name}")
+    private String applicationName;
+
 
     public void createSongMetadata(final ResourceDao resource) {
+        final String songServiceUrl = discoveryClient.getNextServerFromEureka(applicationName, false).getHomePageUrl();
         try (InputStream inputStream = new ByteArrayInputStream(resource.getResource())) {
 
             final Metadata metadata = new Metadata();
@@ -39,7 +43,7 @@ public class SongMetadataIntegrationService {
             metadataDto.setYear(metadata.get("xmpDM:releaseDate"));
             metadataDto.setDuration(getDuration(metadata));
 
-            ResponseEntity<String> response = restTemplate.postForEntity(SONG_SERVICE_URL, metadataDto, String.class);
+            final ResponseEntity<String> response = restTemplate.postForEntity(songServiceUrl, metadataDto, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new RuntimeException("Failed to send metadata: " + response.getStatusCode());
             }
@@ -55,8 +59,9 @@ public class SongMetadataIntegrationService {
     }
 
     public void deleteSongMetadata(final String id) {
+        final String songServiceUrl = discoveryClient.getNextServerFromEureka(applicationName, false).getHomePageUrl();
         try {
-            restTemplate.delete(SONG_SERVICE_URL + "?id=" +id);
+            restTemplate.delete(songServiceUrl + "?id=" + id);
         } catch (Exception e) {
             throw new RuntimeException("Error deleting song metadata with ids: " + id, e);
         }
