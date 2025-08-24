@@ -13,6 +13,7 @@
 # ===== Build Files =====
 resource-service/target/
 song-service/target/
+eureka-discovery-service/target/
 
 
 
