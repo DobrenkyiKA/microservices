@@ -6,6 +6,15 @@ services:
     ports:
       - "8761:8761"
 
+  resource-processor:
+    container_name: resource-processor
+    build:
+      context: ./resource-processor
+    ports:
+      - "8086:8086"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: ${EUREKA_CLIENT_SERVICE_URL}
+
   resource-service:
     container_name: resource-service
     build:
