@@ -4,9 +4,9 @@ import com.kdob.songservice.dto.error.ErrorMessageDto;
 import com.kdob.songservice.dto.error.ValidationErrorMessageDto;
 import com.kdob.songservice.exception.AlreadyExistSongMetadataException;
 import com.kdob.songservice.exception.NoSuchSongMetadataException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.validation.FieldError;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
@@ -36,7 +34,7 @@ public class GlobalControllerAdvice {
         ErrorMessageDto errorMessageDto = new ErrorMessageDto();
         errorMessageDto.setErrorMessage("Invalid file format: " + e.getContentType() + ". Only MP3 files are allowed");
         errorMessageDto.setErrorCode(String.valueOf(HttpStatus.BAD_REQUEST.value()));
-    return errorMessageDto;
+        return errorMessageDto;
     }
 
     @ExceptionHandler(NoSuchSongMetadataException.class)

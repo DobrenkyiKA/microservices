@@ -1,7 +1,7 @@
 package com.kdob.resourceservice.service;
 
-import com.kdob.resourceservice.dao.ResourceDao;
 import com.kdob.resourceservice.dto.request.SongMetadataRequestDto;
+import com.kdob.resourceservice.pojo.Resource;
 import com.netflix.discovery.EurekaClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.metadata.Metadata;
@@ -27,7 +27,7 @@ public class SongMetadataIntegrationService {
     private String applicationName;
 
 
-    public void createSongMetadata(final ResourceDao resource) {
+    public void createSongMetadata(final Resource resource) {
         final String songServiceUrl = discoveryClient.getNextServerFromEureka(applicationName, false).getHomePageUrl();
         try (InputStream inputStream = new ByteArrayInputStream(resource.getResource())) {
 
