@@ -1,457 +1,249 @@
-What to do
+# Testing Strategy for Microservices Architecture
 
-Your task is to implement a microservices system consisting of two services:
+## Executive Summary
 
+This document outlines the comprehensive testing strategy for the microservices-based music management system consisting of multiple services: resource-service, resource-processor, song-service, and eureka-discovery-service. The strategy employs a multi-layered testing approach to ensure application stability, reliability, and comprehensive coverage across the distributed system.
 
-Resource Service - for MP3 file processing
+## Architecture Overview
 
-Song Service - for song metadata management
+The system comprises:
+- **Resource Service**: Manages audio file resources with PostgreSQL, AWS S3 (LocalStack), and Kafka messaging
+- **Resource Processor**: Processes uploaded files using Apache Tika, consuming Kafka events
+- **Song Service**: Manages song metadata with PostgreSQL database (2 replicas for high availability)
+- **Eureka Discovery Service**: Service registry for microservices discovery
+- **Infrastructure**: Kafka for event-driven architecture, PostgreSQL databases, LocalStack for AWS services
 
+## Testing Strategy Breakdown
 
-Service relationships
-The services are designed to work together as follows:
+### 1. Unit Tests (Target: 85% Coverage)
 
+**Scope**: Individual classes, methods, and components in isolation
 
-Resource Service handles the storage and processing of MP3 files.
+**Strategy**:
+- **Pure Business Logic**: 100% coverage for core business logic classes (services, mappers, validators)
+- **Controllers**: 90% coverage focusing on request/response handling, validation, and error scenarios
+- **Repositories**: 80% coverage for custom query methods and data access logic
+- **Utilities and Helpers**: 100% coverage for utility classes and helper methods
 
-Song Service manages metadata for each song, ensuring that each metadata entry corresponds to a unique MP3 file in the Resource Service.
-The song metadata and resource entities maintain a one-to-one relationship:
+**Key Areas**:
+- `ResourceService`, `SongService` business logic
+- `ResourceMapper`, DTOs mapping logic
+- `ValidIdValidator` and other custom validators
+- `ResourceEventPublisher` event publishing logic
+- `ResourceEventsConsumer` message processing logic
+- Apache Tika integration in resource-processor
 
-Each song metadata entry is uniquely associated with a resource, linked via the resource ID.
-Deleting a resource triggers a cascading deletion of its associated metadata.
+**Tools**: JUnit 5, Mockito, Spring Boot Test, TestContainers for database testing
 
+**Benefits**: Fast feedback, ensures individual components work correctly, supports refactoring
 
+### 2. Integration Tests (Target: 70% Coverage)
 
+**Scope**: Testing interactions between application components and external dependencies
 
-Requirements
+**Strategy**:
+- **Database Integration**: Test JPA repositories with real PostgreSQL using TestContainers
+- **Messaging Integration**: Test Kafka producers/consumers with embedded Kafka or TestContainers
+- **REST Client Integration**: Test HTTP communication between services
+- **AWS S3 Integration**: Test file operations with LocalStack
 
+**Key Areas**:
+- `ResourceInfoDao` with PostgreSQL database
+- Kafka message publishing and consumption flows
+- `SongServiceIntegrationService` HTTP client calls
+- AWS S3 file upload/download operations
+- Spring Security configurations (if present)
 
-Spring Boot 3.4.0 or higher
+**Tools**: Spring Boot Test, TestContainers, WireMock for service mocking, Embedded Kafka
 
-Java 17 or later (LTS versions)
+**Benefits**: Validates component interactions, catches integration issues early
 
-Build Tool: Maven or Gradle
+### 3. Component Tests (Target: 90% Coverage)
 
-Database: PostgreSQL
+**Scope**: Testing entire service as a black box with all internal components working together
 
-Application Startup: In this module, Resource Service and Song Service must run locally (not in Docker).
+**Strategy**:
+- **Service-Level Testing**: Each microservice tested independently with real databases and message brokers
+- **API Contract Testing**: Verify REST API contracts and behavior
+- **Business Workflow Testing**: End-to-end business scenarios within single service boundaries
+- **Error Handling**: Comprehensive error scenario testing
 
+**Key Areas**:
+- Complete resource creation workflow (upload → store → publish event)
+- Resource processing workflow (consume event → process file → extract metadata)
+- Song metadata management operations
+- Service discovery and health check endpoints
 
-This course does not require creating unit tests. If you are not planning to include tests, please delete src/test/ directory and remove the test dependencies (spring-boot-starter-test etc.) from your pom.xml or build.gradle files.
+**Tools**: Spring Boot Test with TestContainers, REST Assured, Docker Compose for test environments
 
+**Benefits**: Validates complete service functionality, ensures business requirements are met
 
-Sub-task 1: Resource Service
-The Resource Service implements CRUD operations for processing MP3 files. When uploading an MP3 file, the service:
+### 4. Contract Tests (Target: 100% Coverage for Inter-Service Contracts)
 
-Stores the MP3 file in the database.
-Extracts the MP3 file tags (metadata) using external libraries like Apache Tika.
-Invokes the Song Service to save the MP3 file tags (metadata).
-Must not modify the tags (metadata) extracted from the MP3 file before sending them to the Song Service, except for converting the duration from seconds to mm:ss format.
+**Scope**: Testing contracts between services to prevent breaking changes
 
+**Strategy**:
+- **Provider Tests**: Verify that services fulfill their API contracts
+- **Consumer Tests**: Verify that services can consume expected responses
+- **Event Contract Testing**: Validate Kafka message schemas and formats
+- **API Versioning**: Ensure backward compatibility during service evolution
 
-API endpoints
+**Key Areas**:
+- REST API contracts between resource-service and song-service
+- Kafka message contracts between resource-service and resource-processor
+- Eureka service registration contracts
+- Database schema evolution compatibility
 
+**Tools**: Pact for HTTP contracts, Spring Cloud Contract, Schema Registry for Kafka schemas
 
-1. Upload resource
+**Benefits**: Prevents breaking changes, enables independent service deployment, reduces integration failures
 
-POST /resources
-
-
-Description: Uploads a new MP3 resource.
-Request:
-
-
-Content-Type: audio/mpeg
-
-Body: Binary MP3 audio data
-
-Response:
-
-{
-"id": 1
-}
-
-
-
-
-Description: Returns the ID of successfully created resource.
-
-Status codes:
-
-
-200 OK – Resource uploaded successfully.
-
-400 Bad Request – The request body is invalid MP3.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-
-2. Get resource
-
-GET /resources/{id}
-
-
-Description: Retrieves the binary audio data of a resource.
-Parameters:
-
-
-id (Integer): The ID of the resource to retrieve.
-
-Restriction: Must be a valid ID of an existing resource.
-
-Response:
-
-
-Body: Returns the audio bytes (MP3 file) for the specified resource.
-
-Status codes:
-
-
-200 OK – Resource retrieved successfully.
-
-400 Bad Request – The provided ID is invalid (e.g., contains letters, decimals, is negative, or zero).
-
-404 Not Found – Resource with the specified ID does not exist.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-
-3. Delete resources
-
-DELETE /resources?id=1,2
-
-
-Description: Deletes specified resources by their IDs. If a resource does not exist, it is ignored without causing an error.
-Parameters:
-
-
-id (String): Comma-separated list of resource IDs to remove.
-
-Restriction: CSV string length must be less than 200 characters.
-
-Response:
-
-{
-"ids": [1, 2]
-}
-
-
-
-
-Description: Returns an array of the IDs of successfully deleted resources.
-
-Status codes:
-
-
-200 OK – Request successful, resources deleted as specified.
-
-400 Bad Request – CSV string format is invalid or exceeds length restrictions.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-
-Sub-task 2: Song Service
-The Song Service implements CRUD operations for managing song metadata records. The service uses the Resource ID to uniquely identify each metadata record, establishing a direct one-to-one relationship between resources and their metadata.
-
-
-API endpoints
-
-1. Create song metadata
-
-POST /songs
-
-
-Description: Create a new song metadata record in the database.
-Request body:
-
-{
-"id": 1,
-"name": "We are the champions",
-"artist": "Queen",
-"album": "News of the world",
-"duration": "02:59",
-"year": "1977"
-}
-
-
-
-
-Description: Song metadata fields.
-
-Validation rules:
-
-All fields are required.
-
-id: Numeric, must match an existing Resource ID.
-
-name: 1-100 characters text.
-
-artist: 1-100 characters text.
-
-album: 1-100 characters text.
-
-duration: Format mm:ss, with leading zeros.
-
-year: YYYY format between 1900-2099.
-
-Response:
-
-{
-"id": 1
-}
-
-
-
-
-Description: Returns the ID of the successfully created metadata record (should match the Resource ID).
-
-Status codes:
-
-
-200 OK – Metadata created successfully.
-
-400 Bad Request – Song metadata is missing or contains errors.
-
-409 Conflict – Metadata for this ID already exists.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-
-2. Get song metadata
-
-GET /songs/{id}
-
-
-Description: Get song metadata by ID.
-Parameters:
-
-
-id (Integer): ID of the metadata to retrieve.
-
-Restriction: Must match an existing Resource ID.
-
-Response:
-
-{
-"id": 1,
-"name": "We are the champions",
-"artist": "Queen",
-"album": "News of the world",
-"duration": "02:59",
-"year": "1977"
-}
-
-
-Status codes:
-
-
-200 OK – Metadata retrieved successfully.
-
-400 Bad Request – The provided ID is invalid (e.g., contains letters, decimals, is negative, or zero).
-
-404 Not Found – Song metadata with the specified ID does not exist.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-
-3. Delete songs metadata
-
-DELETE /songs?id=1,2
-
-
-Description: Deletes specified song metadata records by their IDs. If a metadata record does not exist, it is ignored without causing an error.
-Parameters:
-
-
-id (String): Comma-separated list of metadata IDs to remove.
-
-Restriction: CSV string length must be less than 200 characters.
-
-Response:
-
-{
-"ids": [1, 2]
-}
-
-
-
-
-Description: Returns an array of the IDs of successfully deleted metadata records.
-
-Status codes:
-
-
-200 OK – Request successful, metadata records deleted as specified.
-
-400 Bad Request – CSV string format is invalid or exceeds length restrictions.
-
-500 Internal Server Error – An error occurred on the server.
-
-
-Notes
-
-Controllers
-
-Keep controllers slim; they should only handle HTTP-related concerns.
-Do not place validation (e.g., ID length checks) in controllers. Move validation to the service layer or use request DTOs with validation annotations.
-Do not include business logic (e.g., data transformations, string parsing) in controllers. Move such logic to the service layer or mappers.
-Avoid using raw entities for requests and responses to prevent exposing sensitive fields or internal schema details. Use DTOs instead.
-Wrap responses in ResponseEntity<T> with appropriate HTTP status codes.
-Use specific response types (e.g., ResponseEntity<Map<String, Long>>, ResponseEntity<SongDto>) to ensure API consistency.
-Controllers should not manually throw or handle exceptions. Instead, throw exceptions in the service layer and handle them in a global exception handler.
-
-
-Error Handling
-
-Add a global exception handler using @RestControllerAdvice.
-Map exceptions to appropriate HTTP status codes.
-Provide meaningful error messages and error codes in responses using a unified structure (see the API response specification for detailed response formats):
-
-
-Simple error response
-
-{
-"errorMessage": "Resource with ID=1 not found",
-"errorCode": "404"
-}
-
-
-
-Validation error response
-
-{
-"errorMessage": "Validation error",
-"details": {
-"duration": "Duration must be in mm:ss format with leading zeros",
-"year": "Year must be between 1900 and 2099"
-},
-"errorCode": "400"
-}
-
-
-
-Incorrect responses and why they are wrong
-Example 1:
-
-{
-"errorMessage": "400 BAD_REQUEST \"Validation failure\"",
-"errorCode": 400
-}
-
-
-Issues:
-
-
-"400 BAD_REQUEST" in errorMessage is redundant (status code already exists in errorCode).
-No details about which fields failed validation and why.
-
-
-Example 2:
-
-{
-"errorMessage": "Validation failure",
-"errorCode": 400
-}
-
-
-Issue:
-
-No details about which fields failed validation and why.
-
-
-Example 3:
-
-{
-"errorMessage": "problemDetail.org.springframework.web.bind.MethodArgumentNotValidException",
-"errorCode": 400,
-"details": {
-"name": "Name is required"
-}
-}
-
-
-Issues:
-
-The errorMessage should never contain raw exception names (e.g., MethodArgumentNotValidException). This exposes internal implementation details to the API consumer.
-The message should be replaced with a human-readable "Validation failed".
-
-
-Example 4
-
-{
-"errorMessage": "Method parameter 'id': Failed to convert value of type 'java.lang.String' to required type 'int'; For input string: \"ABC\"",
-"errorCode": "400"
-}
-
-
-Issues:
-
-The errorMessage is too technical and exposes unnecessary implementation details (java.lang.String, int conversion).
-It does not clearly indicate what the user did wrong.
-
-
-
-Database implementation requirements
-
-Use Docker containers for database deployment.
-
-PostgreSQL 16+ is required as the database engine.
-Each service should have its own dedicated database instance.
-A single Docker Compose file located in the root directory of the project must be used to start both database containers.
-For this module, you can use the provided compose.yaml file in your project.
-The use of migration tools such as Flyway or Liquibase is not allowed.
-Database schema initialization must be fully automated using Hibernate.
-In this module, Hibernate’s ddl-auto=update must be used for schema management to simplify development.
-In this module, SQL initialization scripts (e.g., schema.sql, data.sql) must not be used.
-
-
-
-
-Structure
-Both microservices represent a unified application and (will) use shared files. Please merge them into a single folder (Git repository), using the following folder structure as an example:
-For a Maven-based project:
-
-maven-project/
-├── resource-service/
-│   ├── src/
-│   └── pom.xml
-├── song-service/
-│   ├── src/
-│   └── pom.xml
-├── compose.yaml
-└── .gitignore
-
-
-
-For a Gradle-based project:
-
-gradle-project/
-├── gradle/
-│   ├── wrapper/
-│   │   ├── gradle-wrapper.jar
-│   │   ├── gradle-wrapper.properties
-├── resource-service/
-│   ├── src/
-│   └── build.gradle
-├── song-service/
-│   ├── src/
-│   └── build.gradle
-├── gradlew
-├── gradlew.bat
-├── settings.gradle
-├── compose.yaml
-└── .gitignore
-
-
-
-Notes:
-
-The Gradle project must use the Gradle Wrapper (gradlew).
-Keep gradlew only in the root directory.
-Configure settings.gradle to include and link all services.
-Do not ignore the Gradle Wrapper files; they must be included in the git repository.
+### 5. End-to-End Tests (Target: Critical User Journeys Coverage)
+
+**Scope**: Testing complete business workflows across all services
+
+**Strategy**:
+- **Critical Path Testing**: Focus on main user journeys (20% of tests covering 80% of business value)
+- **Production-Like Environment**: Use Docker Compose with all services and dependencies
+- **Data Consistency Testing**: Verify eventual consistency across services
+- **Performance Baselines**: Basic performance validation for critical operations
+
+**Key Scenarios**:
+- Upload audio file → process metadata → create song record (complete workflow)
+- Resource deletion → cleanup across all services
+- Service failure and recovery scenarios
+- Load balancing with multiple song-service instances
+
+**Tools**: Selenium/Playwright for UI (if present), REST Assured for API, Docker Compose, Performance testing with JMeter
+
+**Benefits**: Validates complete system behavior, catches system-level issues, provides confidence for production deployment
+
+## Testing Coverage Strategy
+
+### Overall Coverage Target: 80%
+
+**Distribution**:
+- **Unit Tests**: 85% coverage (40% of total test effort)
+- **Integration Tests**: 70% coverage (25% of total test effort)
+- **Component Tests**: 90% coverage (20% of total test effort)
+- **Contract Tests**: 100% coverage for contracts (10% of total test effort)
+- **End-to-End Tests**: Critical paths only (5% of total test effort)
+
+### Test Pyramid Approach
+
+```
+    E2E Tests (5%)
+   ________________
+  /                \
+ / Component Tests  \
+/      (20%)         \
+____________________
+/                    \
+/ Integration Tests   \
+/       (25%)         \
+________________________
+/                      \
+/     Unit Tests        \
+/       (50%)           \
+__________________________
+```
+
+## Implementation Approach
+
+### Phase 1: Foundation (Week 1-2)
+- Set up testing infrastructure (TestContainers, test databases)
+- Implement unit tests for core business logic
+- Establish CI/CD pipeline with test execution
+
+### Phase 2: Integration & Components (Week 3-4)
+- Implement integration tests for database and messaging
+- Create component tests for each microservice
+- Set up contract testing framework
+
+### Phase 3: End-to-End & Contracts (Week 5-6)
+- Implement contract tests between services
+- Create end-to-end test scenarios
+- Performance baseline establishment
+
+### Test Environment Strategy
+
+**Local Development**:
+- TestContainers for database and Kafka
+- WireMock for external service simulation
+- H2 for fast unit tests where appropriate
+
+**CI/CD Pipeline**:
+- Docker Compose for integration and E2E tests
+- Parallel test execution for faster feedback
+- Test result aggregation and reporting
+
+**Staging Environment**:
+- Production-like environment for final validation
+- Load testing and performance validation
+- Security testing integration
+
+## Quality Gates
+
+### Code Commit Level:
+- Unit tests: Must pass with >85% coverage
+- Static code analysis: No critical issues
+- Integration tests: Must pass for changed components
+
+### Pull Request Level:
+- All unit and integration tests pass
+- Component tests pass for affected services
+- Contract tests validate no breaking changes
+
+### Release Level:
+- All test types pass
+- End-to-end critical scenarios validated
+- Performance baselines met
+- Security scans completed
+
+## Tools and Frameworks
+
+### Testing Frameworks:
+- **JUnit 5**: Unit testing framework
+- **Mockito**: Mocking framework
+- **Spring Boot Test**: Spring-specific testing support
+- **TestContainers**: Integration testing with real dependencies
+- **REST Assured**: API testing
+- **Pact**: Contract testing
+
+### Infrastructure:
+- **Docker & Docker Compose**: Test environment orchestration
+- **TestContainers**: Containerized dependencies
+- **WireMock**: Service virtualization
+- **LocalStack**: AWS service simulation
+
+### CI/CD Integration:
+- **Maven/Gradle**: Build and test execution
+- **JaCoCo**: Code coverage reporting
+- **SonarQube**: Code quality analysis
+- **Allure**: Test reporting and analytics
+
+## Monitoring and Maintenance
+
+### Test Health Monitoring:
+- Test execution time tracking
+- Flaky test identification and resolution
+- Coverage trend monitoring
+- Test maintenance burden assessment
+
+### Continuous Improvement:
+- Regular review of test effectiveness
+- Feedback incorporation from production issues
+- Test suite optimization and cleanup
+- Technology stack updates and migrations
+
+## Conclusion
+
+This comprehensive testing strategy ensures high application stability through a balanced approach that emphasizes strong unit test coverage (85%) complemented by targeted integration (70%), component (90%), contract (100%), and end-to-end testing. The strategy recognizes the complexity of the microservices architecture while maintaining practical coverage targets that provide confidence without excessive maintenance overhead.
+
+The combination of testing strategies ensures:
+- **Fast Feedback**: Unit tests provide immediate feedback during development
+- **Integration Confidence**: Integration and component tests catch interaction issues
+- **System Reliability**: Contract and E2E tests ensure system-level functionality
+- **Production Readiness**: Comprehensive coverage provides deployment confidence
+
+This approach balances thorough testing coverage with development velocity, ensuring the microservices system remains stable, maintainable, and reliable as it evolves.

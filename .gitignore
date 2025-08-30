@@ -16,7 +16,6 @@ song-service/target/
 eureka-discovery-service/target/
 resource-processor/target/
 
-
 *mvnw.cmd
 *mvnw
 *.iml
