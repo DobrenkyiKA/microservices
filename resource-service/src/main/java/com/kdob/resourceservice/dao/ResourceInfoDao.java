@@ -14,6 +14,4 @@ public class ResourceInfoDao {
 
     @Column
     private String key;
-    @Column
-    private String bucket;
 }

@@ -1,5 +1,4 @@
 CREATE TABLE resource_info (
     id SERIAL PRIMARY KEY,
-    key VARCHAR(255),
-    bucket VARCHAR(255)
+    key VARCHAR(255)
 );
