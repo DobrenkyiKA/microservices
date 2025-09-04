@@ -1,4 +1,5 @@
-CREATE TABLE resources (
+CREATE TABLE resource_info (
     id SERIAL PRIMARY KEY,
-    resource BYTEA NOT NULL
+    key VARCHAR(255),
+    bucket VARCHAR(255)
 );

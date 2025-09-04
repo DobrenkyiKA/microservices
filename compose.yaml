@@ -6,6 +6,15 @@ services:
     ports:
       - "8761:8761"
 
+  resource-processor:
+    container_name: resource-processor
+    build:
+      context: ./resource-processor
+    ports:
+      - "8086:8086"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: ${EUREKA_CLIENT_SERVICE_URL}
+
   resource-service:
     container_name: resource-service
     build:
@@ -18,8 +27,8 @@ services:
       SPRING_DATASOURCE_URL: ${RESOURCE_DB_URL}
       SPRING_DATASOURCE_USERNAME: ${RESOURCE_DB_POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${RESOURCE_DB_POSTGRES_PASSWORD}
-#      SONG_SERVICE_URL: ${SONG_SERVICE_URL}
       EUREKA_CLIENT_SERVICE_URL: ${EUREKA_CLIENT_SERVICE_URL}
+      LOCALSTACK_SERVICE_URL: ${LOCALSTACK_SERVICE_URL}
 
   resource-db:
     container_name: resource-db
@@ -34,9 +43,7 @@ services:
     volumes:
       - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
 
-
   song-service:
-#    container_name: song-service
     build:
       context: ./song-service
     ports:
@@ -57,9 +64,22 @@ services:
     restart: always
     environment:
       POSTGRES_DB: ${SONG_DB_DATABASE}
-      POSTGRES_USER: ${SONG_DB_POSTGRES_USER}  # Default, can be omitted if unchanged
+      POSTGRES_USER: ${SONG_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${SONG_DB_POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"  # Maps container port 5432 to host port 5433 (to avoid conflict)
+      - "5433:5432"
     volumes:
       - ./init-scripts/song-db:/docker-entrypoint-initdb.d
+
+  localstack:
+    container_name: localstack-service
+    image: localstack/localstack
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

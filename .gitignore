@@ -14,7 +14,7 @@
 resource-service/target/
 song-service/target/
 eureka-discovery-service/target/
-
+resource-processor/target/
 
 
 *mvnw.cmd
@@ -23,4 +23,5 @@ eureka-discovery-service/target/
 *.gitattributes
 *HELP.md
 *maven-wrapper.properties
+volume/cache
 

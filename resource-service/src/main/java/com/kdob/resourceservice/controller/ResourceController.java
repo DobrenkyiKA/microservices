@@ -6,7 +6,6 @@ import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
 import com.kdob.resourceservice.dto.response.CreateResourceResponseDto;
 import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
 import com.kdob.resourceservice.facade.ResourceFacade;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
