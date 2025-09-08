@@ -48,8 +48,7 @@ public class ResourceS3AwsService {
                                 .key(resource.getKey()),
                 RequestBody.fromBytes(resource.getResource()));
         final ResourceInfoDao resourceInfoToPersist = resourceMapper.daoToDto(resource);
-        resourceInfoToPersist.setBucket(BUCKET_NAME);
-        ResourceInfoDao persistedResourceInfo = resourceInfoRepository.save(resourceInfoToPersist);
+        final ResourceInfoDao persistedResourceInfo = resourceInfoRepository.save(resourceInfoToPersist);
         resource.setId(persistedResourceInfo.getId());
         return resource;
     }

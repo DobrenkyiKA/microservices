@@ -5,6 +5,7 @@ import com.kdob.resourceservice.constraint.ValidCsvId;
 import com.kdob.resourceservice.dto.request.CreateResourceRequestDto;
 import com.kdob.resourceservice.dto.response.CreateResourceResponseDto;
 import com.kdob.resourceservice.dto.response.DeletedResourcesResponseDto;
+import com.kdob.resourceservice.dto.response.GetResourceResponseDto;
 import com.kdob.resourceservice.facade.ResourceFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,8 @@ public class ResourceController {
         return ResponseEntity.ok(resourceFacade.createResource(createResourceRequestDto));
     }
 
-    @GetMapping(produces = "audio/mpeg", path = "/{id}")
-    public ResponseEntity<byte[]> getResource(@PathVariable @PositiveIntegerId final String id) {
+    @GetMapping(produces = "application/json", path = "/{id}")
+    public ResponseEntity<GetResourceResponseDto> getResource(@PathVariable @PositiveIntegerId final long id) {
         return ResponseEntity.ok(resourceFacade.getResource(id));
     }
 
