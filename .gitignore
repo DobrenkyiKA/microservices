@@ -15,6 +15,7 @@ resource-service/target/
 song-service/target/
 eureka-discovery-service/target/
 resource-processor/target/
+api-gateway-service/target/
 
 *mvnw.cmd
 *mvnw

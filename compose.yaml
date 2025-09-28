@@ -1,4 +1,22 @@
 services:
+  api-gateway-service:
+    container_name: api-gateway-service
+    build:
+      context: ./api-gateway-service
+    ports:
+      - "8090:8090"
+    depends_on:
+      eureka-discovery-service:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: ${EUREKA_CLIENT_SERVICE_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   eureka-discovery-service:
     container_name: eureka-discovery-service
     build:
