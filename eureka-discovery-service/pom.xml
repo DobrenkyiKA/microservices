@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.kdob</groupId>
-	<artifactId>eurica-discovery-service</artifactId>
+	<artifactId>eureka-discovery-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>eureka-discovery-service</name>
 	<description>eureka-discovery-service</description>
