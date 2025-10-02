@@ -1,0 +1,20 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/DobrenkyiKA/config-repository-for-microservices.git
+          default-label: main
+          clone-on-start: true
+          force-pull: true
+          search-paths: 'common,{profile}'
+
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+    org.springframework.web: DEBUG
