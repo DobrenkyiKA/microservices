@@ -29,5 +29,8 @@ RUN adduser \
 USER appuser
 # Copy the executable from the "package" stage.
 COPY --from=package /build/target/app.jar app.jar
+
+ENV SPRING_PROFILES_ACTIVE=docker
+
 EXPOSE 8090
 CMD java -jar app.jar

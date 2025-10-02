@@ -1,6 +1,7 @@
 package com.kdob.resourceprocessor.configuration;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.EnableRetry;
@@ -10,6 +11,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 @EnableRetry
 @RequiredArgsConstructor
+@RefreshScope
 public class BeansConfiguration {
 
     private final CustomRetryListener customRetryListener;
