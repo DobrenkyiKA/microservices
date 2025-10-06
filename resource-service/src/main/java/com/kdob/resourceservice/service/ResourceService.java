@@ -24,17 +24,16 @@ public class ResourceService {
 
     public List<Long> delete(final String id) {
         final List<String> ids = Arrays.asList(id.split(","));
-        final List<Long> array = ids.stream()
+        final List<Long> longIds = ids.stream()
                 .map(Long::parseLong)
                 .toList();
 
         final List<Long> result = new ArrayList<>();
-        for (Long aLong : array) {
-            if (resourceS3AwsService.isExist(aLong)) {
-                resourceS3AwsService.delete(aLong);
-                result.add(aLong);
+        for (Long lIds : longIds) {
+            if (resourceS3AwsService.isExist(lIds)) {
+                resourceS3AwsService.delete(lIds);
+                result.add(lIds);
             }
-
         }
         return result;
     }

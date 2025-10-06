@@ -12,7 +12,7 @@ import org.springframework.kafka.config.TopicBuilder;
 public class ResourceKafkaConfig {
 
     @Bean
-    public NewTopic resourceCreatedTopic(@Value("${resource.kafka.topic:resource-created}") String topic) {
+    public NewTopic resourceCreatedTopic(@Value("${resource.kafka.topic}") String topic) {
         return TopicBuilder.name(topic)
                 .partitions(1)
                 .replicas(1)

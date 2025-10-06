@@ -17,6 +17,7 @@ eureka-discovery-service/target/
 resource-processor/target/
 api-gateway-service/target/
 config-server/target
+storage-service/target
 
 *mvnw.cmd
 *mvnw
