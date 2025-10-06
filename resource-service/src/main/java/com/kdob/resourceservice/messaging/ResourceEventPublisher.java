@@ -28,17 +28,17 @@ public class ResourceEventPublisher {
             backoff = @Backoff(delay = 1000, multiplier = 2.0, maxDelay = 10000)
     )
     public void publishResourceCreated(final Long resourceId) {
-        log.info("Attempting to publish resource-created event for id={}", resourceId);
+        log.info("Attempting to publish resource-created event for id=[{}]", resourceId);
         final String payload = String.valueOf(resourceId);
         
         try {
-            SendResult<String, String> result = kafkaTemplate.send(topic, payload).get();
-            log.info("Published resource-created id={} to topic={}, partition={}, offset={}",
+            final SendResult<String, String> result = kafkaTemplate.send(topic, payload).get();
+            log.info("Published resource-created id=[{}] to topic=[{}], partition=[{}], offset=[{}]",
                     resourceId, result.getRecordMetadata().topic(),
                     result.getRecordMetadata().partition(),
                     result.getRecordMetadata().offset());
         } catch (ExecutionException | InterruptedException e) {
-            log.warn("Failed to publish resource-created event for id={}, will retry if possible. Error: {}", 
+            log.warn("Failed to publish resource-created event for id=[{}], will retry if possible. Error: [{}]",
                     resourceId, e.getMessage());
             throw new RuntimeException("Failed to publish resource-created event for id=" + resourceId, e);
         }
@@ -46,7 +46,7 @@ public class ResourceEventPublisher {
 
     @Recover
     public void recover(Exception ex, Long resourceId) {
-        log.error("All retry attempts failed for publishing resource-created event with id={}. Final error: {}", 
+        log.error("All retry attempts failed for publishing resource-created event with id=[{}]. Final error: [{}]",
                 resourceId, ex.getMessage(), ex);
         throw new RuntimeException("Failed to publish resource-created event for id=" + resourceId + " after all retry attempts", ex);
     }

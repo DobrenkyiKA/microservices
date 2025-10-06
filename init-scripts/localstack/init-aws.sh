@@ -20,17 +20,32 @@ if [ $attempt -eq $max_attempts ]; then
     exit 1
 fi
 
-# Check if songs bucket exists, if not create it
-echo "Checking if S3 bucket 'songs' exists..."
-if curl -f -s http://localhost:4566/songs > /dev/null 2>&1; then
-    echo "S3 bucket 'songs' already exists"
+# Check if staging-bucket exists, if not create it
+echo "Checking if S3 bucket 'staging-bucket' exists..."
+if curl -f -s http://localhost:4566/staging-bucket > /dev/null 2>&1; then
+    echo "S3 bucket 'staging-bucket' already exists"
 else
-    echo "Creating S3 bucket 'songs'..."
-    curl -X PUT http://localhost:4566/songs > /dev/null 2>&1
+    echo "Creating S3 bucket 'staging-bucket'..."
+    curl -X PUT http://localhost:4566/staging-bucket > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo "S3 bucket 'songs' created successfully"
+        echo "S3 bucket 'staging-bucket' created successfully"
     else
-        echo "Failed to create S3 bucket 'songs'"
+        echo "Failed to create S3 bucket 'staging-bucket'"
+        exit 1
+    fi
+fi
+
+# Check if permanent-bucket exists, if not create it
+echo "Checking if S3 bucket 'permanent-bucket' exists..."
+if curl -f -s http://localhost:4566/permanent-bucket > /dev/null 2>&1; then
+    echo "S3 bucket 'permanent-bucket' already exists"
+else
+    echo "Creating S3 bucket 'permanent-bucket'..."
+    curl -X PUT http://localhost:4566/permanent-bucket > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "S3 bucket 'permanent-bucket' created successfully"
+    else
+        echo "Failed to create S3 bucket 'permanent-bucket'"
         exit 1
     fi
 fi

@@ -22,7 +22,7 @@ public class SongServiceIntegrationService {
     private final EurekaClient discoveryClient;
 
     @Value("${song.service.application.name}")
-    private String applicationName;
+    private String songServiceName;
 
     @Retryable(
             retryFor = {HttpServerErrorException.class, ResourceAccessException.class, RuntimeException.class},
@@ -33,8 +33,7 @@ public class SongServiceIntegrationService {
     )
     public void deleteSongMetadata(final String id) {
         log.info("Attempting to delete song metadata with id: {}", id);
-        final String songServiceUrl = discoveryClient.getNextServerFromEureka(applicationName, false).getHomePageUrl();
-        
+        final String songServiceUrl = discoveryClient.getNextServerFromEureka(songServiceName, false).getHomePageUrl();
         try {
             restClient.delete()
                     .uri(songServiceUrl + "?id=" + id)

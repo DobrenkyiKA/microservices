@@ -1,5 +1,6 @@
 package com.kdob.resourceservice.dao;
 
+import com.kdob.resourceservice.enumeration.StorageType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,4 +15,11 @@ public class ResourceInfoDao {
 
     @Column
     private String key;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "storage_state", nullable = false)
+    private StorageType storageType = StorageType.STAGING;
+    
+    @Column
+    private Long storageId;
 }
