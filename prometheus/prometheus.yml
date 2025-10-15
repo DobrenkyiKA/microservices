@@ -1,0 +1,77 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # API Gateway
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8080']  # Adjust port
+        labels:
+          application: 'api-gateway'
+          environment: 'dev'
+
+  # Eureka Discovery
+  - job_name: 'eureka-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8761']  # Adjust port
+        labels:
+          application: 'eureka-server'
+          environment: 'dev'
+
+  # Config Server
+  - job_name: 'config-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8888']  # Adjust port
+        labels:
+          application: 'config-server'
+          environment: 'dev'
+
+  # Resource Service
+  - job_name: 'resource-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['resource-service:8081']
+        labels:
+          application: 'resource-service'
+          environment: 'docker'
+
+  # Resource Processor
+  - job_name: 'resource-processor'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['resource-processor:8086']
+        labels:
+          application: 'resource-processor'
+          environment: 'docker'
+
+  # Song Service
+  - job_name: 'song-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['song-service:8082']
+        labels:
+          application: 'song-service'
+          environment: 'docker'
+
+  # Storage Service
+  - job_name: 'storage-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['storage-service:8094']
+        labels:
+          application: 'storage-service'
+          environment: 'docker'
+
+  # Service discovery via Eureka (alternative approach)
+  - job_name: 'spring-boot-services'
+    eureka_sd_configs:
+      - server: http://eureka-discovery-service:8761/eureka
+    relabel_configs:
+      - source_labels: [__meta_eureka_app_name]
+        target_label: application
+      - source_labels: [__meta_eureka_app_instance_metadata_metrics_path]
+        target_label: __metrics_path__

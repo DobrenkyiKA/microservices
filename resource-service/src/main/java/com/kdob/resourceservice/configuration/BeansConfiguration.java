@@ -1,6 +1,7 @@
 package com.kdob.resourceservice.configuration;
 
 import lombok.AllArgsConstructor;
+import org.springframework.boot.web.client.RestClientCustomizer;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +18,8 @@ public class BeansConfiguration {
     private final CustomRetryListener customRetryListener;
 
     @Bean
-    public RestClient restClient() {
-        return RestClient.create();
+    public RestClient restClient(RestClient.Builder builder) {
+        return builder.build();
     }
 
     @Bean

@@ -1,16 +1,12 @@
-package com.kdob.resourceservice.configuration;
+package com.kdob.resourceprocessor.configuration;
 
 import io.micrometer.observation.ObservationRegistry;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
@@ -19,21 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@RefreshScope
-public class ResourceKafkaConfig {
-
-    @Bean
-    public NewTopic resourceCreatedTopic(@Value("${resource.kafka.topic}") String topic) {
-        return TopicBuilder.name(topic)
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
+public class ResourceProcessorKafkaConfig {
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties(null));
-        // Use ErrorHandlingDeserializer to protect against malformed records
+        // Wrap deserializers with ErrorHandlingDeserializer to safely handle malformed records
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);

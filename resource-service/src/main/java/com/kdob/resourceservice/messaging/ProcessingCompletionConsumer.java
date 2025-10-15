@@ -15,7 +15,14 @@ public class ProcessingCompletionConsumer {
     
     @KafkaListener(topics = "${resource.processing.completion.topic:resource-processing-completed}", 
                    groupId = "${resource.processing.completion.groupId:resource-service-group}")
-    public void onProcessingCompleted(Long resourceId) {
+    public void onProcessingCompleted(String resourceIdPayload) {
+        Long resourceId;
+        try {
+            resourceId = Long.parseLong(resourceIdPayload);
+        } catch (NumberFormatException ex) {
+            log.error("Received invalid processing completion payload: [{}]", resourceIdPayload, ex);
+            return; // Skip processing for invalid payloads
+        }
         log.info("Received processing completion notification for resource ID: {}", resourceId);
         
         try {
