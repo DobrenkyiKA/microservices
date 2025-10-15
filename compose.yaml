@@ -59,6 +59,10 @@ services:
         condition: service_healthy
       eureka-discovery-service:
         condition: service_healthy
+      zipkin:
+        condition: service_started
+      influxdb:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
@@ -86,6 +90,10 @@ services:
         condition: service_healthy
       eureka-discovery-service:
         condition: service_healthy
+      zipkin:
+        condition: service_started
+      influxdb:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
@@ -127,6 +135,10 @@ services:
         condition: service_healthy
       eureka-discovery-service:
         condition: service_healthy
+      zipkin:
+        condition: service_started
+      influxdb:
+        condition: service_started
     deploy:
       replicas: 2
     environment:
@@ -226,6 +238,10 @@ services:
         condition: service_healthy
       eureka-discovery-service:
         condition: service_healthy
+      zipkin:
+        condition: service_started
+      influxdb:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
@@ -254,3 +270,99 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.5
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+    # Kibana for log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.1.5
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+
+  # Logstash for log aggregation
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.1.5
+    container_name: logstash
+    ports:
+      - "5010:5000"
+      - "9600:9600"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    depends_on:
+      - elasticsearch
+
+  # Zipkin for distributed tracing
+  zipkin:
+    image: openzipkin/zipkin:3.4
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:v3.6.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  # InfluxDB for time-series data (optional, if you need it alongside Prometheus)
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8085:8086"
+    environment:
+      - INFLUXDB_DB=mydb
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=adminpassword
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:12.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - influxdb
+
+volumes:
+  elasticsearch_data:
+  prometheus_data:
+  influxdb_data:
+  grafana_data:

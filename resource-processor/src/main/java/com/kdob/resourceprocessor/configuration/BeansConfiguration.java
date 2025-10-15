@@ -17,8 +17,8 @@ public class BeansConfiguration {
     private final CustomRetryListener customRetryListener;
 
     @Bean
-    public RestClient restClient() {
-        return RestClient.create();
+    public RestClient restClient(RestClient.Builder builder) {
+        return builder.build();
     }
 
     @Bean

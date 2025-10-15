@@ -33,7 +33,14 @@ public class ResourceEventsConsumer {
     private String applicationName;
 
     @KafkaListener(topics = "${resource.kafka.topic}", groupId = "${resource.kafka.groupId}")
-    public void onResourceCreated(final Long resourceId) {
+    public void onResourceCreated(final String resourceIdPayload) {
+        Long resourceId;
+        try {
+            resourceId = Long.parseLong(resourceIdPayload);
+        } catch (NumberFormatException ex) {
+            log.error("Received invalid resource id payload: [{}]", resourceIdPayload, ex);
+            return; // Skip processing for invalid payloads
+        }
         log.info("Consumed resource-created event, resourceId=[{}]", resourceId);
         final ResourceDto response = fetchResourceData(resourceId);
         final SongMetadataRequestDto songMetadata = resourceMetadataExtractionService.createSongMetadata(response);
@@ -67,7 +74,7 @@ public class ResourceEventsConsumer {
     }
 
     @Recover
-    private ResourceDto recover(Exception ex, String resourceId) {
+    private ResourceDto recover(Exception ex, Long resourceId) {
         log.error("All retry attempts failed for fetching resource data with resourceId: [{}]. Final error: [{}]", resourceId, ex.getMessage(), ex);
         throw new RuntimeException("Failed to fetch resource data for resourceId: " + resourceId + " after all retry attempts", ex);
     }

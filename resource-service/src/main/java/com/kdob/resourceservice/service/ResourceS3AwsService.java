@@ -4,6 +4,8 @@ import com.kdob.resourceservice.dao.ResourceInfoDao;
 import com.kdob.resourceservice.dto.StorageDto;
 import com.kdob.resourceservice.exception.NoSuchResourceException;
 import com.kdob.resourceservice.mapper.ResourceMapper;
+import com.kdob.resourceservice.metrics.LoggingUtils;
+import com.kdob.resourceservice.metrics.MetrixExampleService;
 import com.kdob.resourceservice.pojo.Resource;
 import com.kdob.resourceservice.repository.ResourceInfoRepository;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +31,7 @@ public class ResourceS3AwsService {
     private final ResourceMapper resourceMapper;
     private final StorageService storageService;
     private final S3Client s3Client;
+    private final MetrixExampleService metrixExampleService;
 
     public Resource upload(final Resource resource) {
         log.info("Uploading resource to STAGING storage");
@@ -53,6 +57,7 @@ public class ResourceS3AwsService {
         resource.setId(persistedResourceInfo.getId());
 
         log.info("Resource uploaded successfully to STAGING storage with ID: [{}]", resource.getId());
+        metrixExampleService.useMetrics(resource);
         return resource;
     }
 
@@ -117,6 +122,11 @@ public class ResourceS3AwsService {
         final String stagingKey = staging.getPath() + "/" + resourceInfo.getKey();
         final String permanentKey = permanent.getPath() + "/" + resourceInfo.getKey();
 
+        LoggingUtils.logWithContext(log, "Moving resource to permanent storage", Map.of(
+                "resourceInfoId", resourceInfo.getId().toString(),
+                "resourceInfoStorageId", resourceInfo.getStorageId().toString(),
+                "resourceInfoKey", resourceInfo.getKey()
+        ));
         try {
             s3Client.copyObject(request ->
                     request.sourceBucket(staging.getBucket())
@@ -133,6 +143,11 @@ public class ResourceS3AwsService {
             resourceInfoRepository.save(resourceInfo);
             log.info("Successfully moved resource [{}] to PERMANENT storage", resourceId);
         } catch (final Exception e) {
+            LoggingUtils.logError(log, "Failed to move resource to PERMANENT storage", e, Map.of(
+                    "resourceInfoId", resourceInfo.getId(),
+                    "resourceInfoStorageId", resourceInfo.getStorageId(),
+                    "resourceInfoKey", resourceInfo.getKey()
+            ));
             log.error("Failed to move resource [{}] to PERMANENT storage: [{}]", resourceId, e.getMessage(), e);
             throw new RuntimeException("Failed to move resource to permanent storage", e);
         }

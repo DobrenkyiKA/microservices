@@ -22,7 +22,7 @@ import static com.kdob.resourceservice.enumeration.StorageType.STAGING;
 @Service
 public class StorageIntegrationService {
     private static final String STORAGE_SERVICE_CIRCUIT_BREAKER = "storage-service-cb";
-    private static final String STORAGE_SERVICE_IS_UNAVAILABLE = "Storage Service is unavailable, returning fallback stub data for type: [{}]. Error: [{}]";
+    private static final String STORAGE_SERVICE_IS_UNAVAILABLE = "Storage Service is unavailable, returning fallback stub data. Error: [{}]";
     private static final List<StorageDto> ALL_STORAGES_FALLBACK = List.of(
             StorageDto.builder()
                     .id(1L)
@@ -53,14 +53,7 @@ public class StorageIntegrationService {
     }
 
     public List<StorageDto> getAllStoragesFallback(final Exception ex) {
-        log.warn("Storage Service is unavailable, returning fallback stub data. Error: [{}]", ex.getMessage());
+        log.warn(STORAGE_SERVICE_IS_UNAVAILABLE, ex.getMessage());
         return ALL_STORAGES_FALLBACK;
-    }
-
-    private Optional<StorageDto> getStorageByTypeFallback(final StorageType storageType, final Exception ex) {
-        log.warn(STORAGE_SERVICE_IS_UNAVAILABLE, storageType, ex.getMessage());
-        return ALL_STORAGES_FALLBACK.stream()
-                .filter(s -> storageType.equals(s.getStorageType()))
-                .findFirst();
     }
 }
