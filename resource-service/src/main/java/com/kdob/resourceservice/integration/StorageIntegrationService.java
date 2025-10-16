@@ -44,6 +44,7 @@ public class StorageIntegrationService {
 
     @CircuitBreaker(name = STORAGE_SERVICE_CIRCUIT_BREAKER, fallbackMethod = "getAllStoragesFallback")
     public List<StorageDto> getAllStorages() {
+        log.info("Getting all storages");
         String url = discoveryClient.getNextServerFromEureka(storageServiceName, false).getHomePageUrl();
         return restClient.get()
                 .uri(url)

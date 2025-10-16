@@ -3,6 +3,7 @@ package com.kdob.resourceprocessor.service;
 import com.kdob.resourceprocessor.dto.ResourceDto;
 import com.kdob.resourceprocessor.dto.request.SongMetadataRequestDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
@@ -12,10 +13,12 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ResourceMetadataExtractionService {
     public SongMetadataRequestDto createSongMetadata(final ResourceDto resource) {
+        log.info("Creating song metadata for resource ID=[{}]", resource.id());
         try (InputStream inputStream = new ByteArrayInputStream(resource.resource())) {
             final Metadata metadata = new Metadata();
             new Mp3Parser().parse(inputStream, new BodyContentHandler(), metadata, new ParseContext());

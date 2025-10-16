@@ -28,6 +28,7 @@ public class StorageService {
     }
 
     public List<Long> deleteStorages(final String idsString) {
+        log.info("Deleting storages with ids: [{}]", idsString);
         final List<String> idStrings = Arrays.asList(idsString.split(","));
         return idStrings.stream()
                 .map(Long::parseLong)

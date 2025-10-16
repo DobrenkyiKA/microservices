@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth2 Test Client</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>OAuth2 Authorization Server Test</h1>
+    <p>Click the button below to start the OAuth2 Authorization Code Flow</p>
+
+    <a href="/oauth2/authorization/web-client" class="button">Login as Admin</a>
+    <a href="/oauth2/authorization/web-client" class="button">Login as User</a>
+
+    <h2>Manual Testing:</h2>
+    <p>Authorization URL:</p>
+    <code>http://localhost:9000/oauth2/authorize?response_type=code&client_id=web-client&scope=openid%20profile%20read%20write&redirect_uri=http://127.0.0.1:8080/authorized</code>
+
+    <h2>Available Users:</h2>
+    <ul>
+        <li><strong>Admin:</strong> username: <code>admin</code>, password: <code>admin</code></li>
+        <li><strong>User:</strong> username: <code>user</code>, password: <code>user</code></li>
+    </ul>
+</div>
+</body>
+</html>
