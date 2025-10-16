@@ -6,6 +6,7 @@ import com.kdob.songservice.exception.AlreadyExistSongMetadataException;
 import com.kdob.songservice.exception.NoSuchSongMetadataException;
 import com.kdob.songservice.repository.SongMetadataRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,22 +15,27 @@ import java.util.List;
 
 @AllArgsConstructor
 @Service
+@Log4j2
 public class SongMetadataService {
 
     private final SongMetadataRepository songMetadataRepository;
 
     public SongMetadataDao createSongMetadata(final SongMetadataDao request) {
+        log.info("Creating song metadata for resource ID=[{}]", request.getId());
         if (songMetadataRepository.existsById(request.getId())) {
+            log.warn("Metadata for resource ID=[{}] already exists", request.getId());
             throw new AlreadyExistSongMetadataException("Metadata for resource ID=" + request.getId() + " already exists");
         }
         return songMetadataRepository.save(request);
     }
 
     public SongMetadataDao getSongMetadata(final long id) {
+        log.info("Getting song metadata for ID=[{}]", id);
         return songMetadataRepository.findById(id).orElseThrow(() -> new NoSuchSongMetadataException("Song metadata for ID=" + id + " not found"));
     }
 
     public DeletedSongMetadataResponseDto deleteSongMetadata(final String id) {
+        log.info("Deleting song metadata with id: [{}]", id);
         List<String> ids = Arrays.asList(id.split(","));
         List<Long> array = ids.stream()
                 .map(Long::parseLong)
@@ -38,6 +44,7 @@ public class SongMetadataService {
         List<Long> result = new ArrayList<>();
         for (Long aLong : array) {
             if (songMetadataRepository.existsById(aLong)) {
+                log.info("Song metadata with id: [{}] deleted", aLong);
                 songMetadataRepository.deleteById(aLong);
                 result.add(aLong);
             }

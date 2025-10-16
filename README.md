@@ -247,3 +247,43 @@ The combination of testing strategies ensures:
 - **Production Readiness**: Comprehensive coverage provides deployment confidence
 
 This approach balances thorough testing coverage with development velocity, ensuring the microservices system remains stable, maintainable, and reliable as it evolves.
+
+Authorization flow
+
+Test 1: Authorization Code Flow
+Step 1: Get Authorization Code
+Open browser to:
+http://localhost:9000/oauth2/authorize?response_type=code&client_id=web-client&scope=openid%20profile%20read%20write&redirect_uri=http://127.0.0.1:8080/authorized
+
+
+Login with user/user123, then copy the code from the redirect URL.
+Step 2: Exchange Code for Token
+
+``` bash
+curl -X POST http://localhost:9000/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -u "web-client:web-secret" \
+  -d "grant_type=authorization_code&code=N5nM0CGLZ6r-D5TrRQ37yeapSh76zd1pyMNXUQQyKhbYD31dqqN7hmkWK8xRuvDvWcwaxVgINta0XnfVJZIlU8OwE3UYO5bqVaxuCrnsD4RfhPUDO1l0ysndtlyOalBB&redirect_uri=http://127.0.0.1:8080/authorized"
+```
+curl -X POST http://localhost:9000/oauth2/token \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-u "web-client:web-secret" \
+-d "grant_type=authorization_code&code=YSPMEJu7DCH_f6TmPFM8t_TLKBHotaUBQ9y1cqRQr1Sk0uNFfk9u_4ImOCcvBNSe9M4P3PXBOP2PS4ViHqjaoP1Ui1FUBSgxweAkcb0j0WqQdEqd8oOItCazsn9uCXSD&redirect_uri=http://127.0.0.1:8080/authorized"
+Test 2: Client Credentials Flow (Easier to Test)
+This doesn't require browser interaction:
+
+``` bash
+curl -X POST http://localhost:9000/oauth2/token \
+-H "Content-Type: application/x-www-form-urlencoded" \
+-u "service-client:service-secret" \
+-d "grant_type=client_credentials&scope=read write"
+```
+
+This should now work! You should get a response like:``` json
+{
+  "access_token": "eyJraWQiOiI5ZjY5...",
+  "token_type": "Bearer",
+  "expires_in": 7199,
+  "scope": "read write"
+}
+```

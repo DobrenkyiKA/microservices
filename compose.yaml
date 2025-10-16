@@ -1,4 +1,27 @@
 services:
+  authorization-service:
+    build:
+      context: ./authorization-service
+      dockerfile: Dockerfile
+    container_name: authorization-service
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      SPRING_SECURITY_OAUTH2_AUTHORIZATIONSERVER_ISSUER: http://authorization-service:9000
+    depends_on:
+      eureka-discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
   config-server:
     container_name: config-server
     build:
@@ -24,8 +47,10 @@ services:
       eureka-discovery-service:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://authorization-service:9000
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://authorization-service:9000/oauth2/jwks
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
       interval: 10s
@@ -64,8 +89,12 @@ services:
       influxdb:
         condition: service_started
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      LOGSTASH_SERVER_URI: ${LOGSTASH_SERVER_URI}
+      OAUTH_TOKEN_URI: http://authorization-service:9000/oauth2/token
+      OAUTH_CLIENT_ID: service-client
+      OAUTH_CLIENT_SECRET: service-secret
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
       interval: 10s
@@ -95,8 +124,12 @@ services:
       influxdb:
         condition: service_started
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      LOGSTASH_SERVER_URI: ${LOGSTASH_SERVER_URI}
+      OAUTH_TOKEN_URI: http://authorization-service:9000/oauth2/token
+      OAUTH_CLIENT_ID: service-client
+      OAUTH_CLIENT_SECRET: service-secret
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 10s
@@ -142,8 +175,9 @@ services:
     deploy:
       replicas: 2
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      LOGSTASH_SERVER_URI: ${LOGSTASH_SERVER_URI}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
       interval: 10s
@@ -243,8 +277,9 @@ services:
       influxdb:
         condition: service_started
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+      LOGSTASH_SERVER_URI: ${LOGSTASH_SERVER_URI}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8094/actuator/health"]
       interval: 10s
@@ -332,7 +367,6 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
 
-  # InfluxDB for time-series data (optional, if you need it alongside Prometheus)
   influxdb:
     image: influxdb:1.8
     container_name: influxdb

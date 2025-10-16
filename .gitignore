@@ -18,6 +18,7 @@ resource-processor/target/
 api-gateway-service/target/
 config-server/target
 storage-service/target
+authorization-service/target
 
 *mvnw.cmd
 *mvnw
